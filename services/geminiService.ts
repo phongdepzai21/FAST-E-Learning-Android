@@ -7,17 +7,21 @@ Hãy trả lời ngắn gọn, chính xác, chuyên nghiệp nhưng thân thiệ
 `;
 
 export const getGeminiResponse = async (userPrompt: string): Promise<string> => {
-  // Safe access to process.env
-  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : null;
+  // Safe environment check
+  let apiKey = '';
+  try {
+     apiKey = (typeof process !== 'undefined' && process.env?.API_KEY) ? process.env.API_KEY : '';
+  } catch (e) {
+    console.warn("API Key access warning", e);
+  }
 
   if (!apiKey) {
-    return "Lỗi: Chưa cấu hình API Key. Vui lòng kiểm tra môi trường.";
+    return "Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng thử lại sau.";
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
     
-    // Using gemini-3-flash-preview for fast, intelligent text responses
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: userPrompt,
@@ -26,9 +30,9 @@ export const getGeminiResponse = async (userPrompt: string): Promise<string> => 
       }
     });
 
-    return response.text || "Xin lỗi, tôi không thể tạo câu trả lời lúc này.";
+    return response.text || "Xin lỗi, tôi không thể xử lý yêu cầu lúc này.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Đã xảy ra lỗi khi kết nối với trợ lý AI. Vui lòng thử lại sau.";
+    return "Đã xảy ra lỗi khi kết nối với FAST AI. Vui lòng kiểm tra lại kết nối mạng.";
   }
 };

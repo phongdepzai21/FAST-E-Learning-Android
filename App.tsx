@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import CourseList from './components/CourseList';
-import AITutor from './components/AITutor';
-import Footer from './components/Footer';
-import Login from './components/Login';
-import Account from './components/Account';
-import { ViewState } from './types';
-import { COLORS } from './constants';
+import Navbar from './components/Navbar.tsx';
+import Hero from './components/Hero.tsx';
+import CourseList from './components/CourseList.tsx';
+import AITutor from './components/AITutor.tsx';
+import Footer from './components/Footer.tsx';
+import Login from './components/Login.tsx';
+import Account from './components/Account.tsx';
+import { ViewState } from './types.ts';
+import { COLORS } from './constants.ts';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -75,7 +75,6 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-[#374151] bg-[#f8fafb]">
-      {/* Hide Navbar completely on Login screen as requested */}
       {currentView !== ViewState.LOGIN && (
         <Navbar currentView={currentView} onChangeView={setCurrentView} isLoggedIn={isLoggedIn} />
       )}
