@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.tsx';
 import Hero from './components/Hero.tsx';
@@ -6,12 +7,14 @@ import AITutor from './components/AITutor.tsx';
 import Footer from './components/Footer.tsx';
 import Login from './components/Login.tsx';
 import Account from './components/Account.tsx';
-import { ViewState } from './types.ts';
+// Import ViewStateType to use as a TypeScript type
+import { ViewState, ViewStateType } from './types.ts';
 import { COLORS } from './constants.ts';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentView, setCurrentView] = useState<ViewState>(ViewState.LOGIN);
+  // Fixed error: Use ViewStateType instead of the ViewState object value as the generic type
+  const [currentView, setCurrentView] = useState<ViewStateType>(ViewState.LOGIN);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);

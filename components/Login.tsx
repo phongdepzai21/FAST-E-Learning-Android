@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { COLORS, LOGO_URL } from '../constants.ts';
 
-interface LoginProps {
-  onSuccess: () => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onSuccess }) => {
+const Login = ({ onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     onSuccess();
   };
@@ -26,7 +22,6 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
           />
         </div>
         
-        {/* Adjusted Slogan - Lowered with pt-6/pt-8 */}
         <div className="flex flex-col items-start justify-center pt-6 sm:pt-8">
           <span className="text-[9px] sm:text-[13px] font-black tracking-[0.1em] uppercase text-gray-400 text-left leading-tight whitespace-nowrap">
             FOOD ALL STANDARD &<br />TRAINING
@@ -35,9 +30,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
         </div>
       </div>
 
-      {/* Main Login Card */}
       <div className="relative z-10 w-full max-w-md px-6 flex flex-col items-center animate-slide-up flex-1 justify-center -mt-8 sm:-mt-16">
-        
         <div className="w-full text-center mb-8 sm:mb-10">
           <h3 className="text-3xl sm:text-5xl font-black text-gray-900 mb-2 tracking-tight">
             {isLogin ? 'Đăng nhập' : 'Đăng ký'}
@@ -113,7 +106,6 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
         </div>
       </div>
       
-      {/* Accents */}
       <div className="absolute top-1/2 left-0 w-64 h-64 bg-teal-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-40"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-50 rounded-full blur-[120px] translate-x-1/4 translate-y-1/4 pointer-events-none opacity-40"></div>
     </div>

@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
@@ -6,21 +7,11 @@ Mục tiêu của bạn là giúp học viên hiểu rõ các khái niệm, gi�
 Hãy trả lời ngắn gọn, chính xác, chuyên nghiệp nhưng thân thiện. Ngôn ngữ chính là Tiếng Việt.
 `;
 
+// Aligned with Google GenAI SDK guidelines for initialization and usage
 export const getGeminiResponse = async (userPrompt: string): Promise<string> => {
-  // Safe environment check
-  let apiKey = '';
   try {
-     apiKey = (typeof process !== 'undefined' && process.env?.API_KEY) ? process.env.API_KEY : '';
-  } catch (e) {
-    console.warn("API Key access warning", e);
-  }
-
-  if (!apiKey) {
-    return "Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng thử lại sau.";
-  }
-
-  try {
-    const ai = new GoogleGenAI({ apiKey });
+    // Correct initialization: Always use process.env.API_KEY directly.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -30,6 +21,7 @@ export const getGeminiResponse = async (userPrompt: string): Promise<string> => 
       }
     });
 
+    // Directly accessing the .text property as per instructions (not calling it as a method).
     return response.text || "Xin lỗi, tôi không thể xử lý yêu cầu lúc này.";
   } catch (error) {
     console.error("Gemini API Error:", error);

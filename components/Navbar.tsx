@@ -1,11 +1,15 @@
+
 import React, { useState } from 'react';
 import { Menu, X, GraduationCap, Bot, Home, Info, User as UserIcon } from 'lucide-react';
-import { ViewState } from '../types.ts';
+// Import ViewStateType to use as a TypeScript type
+import { ViewState, ViewStateType } from '../types.ts';
 import { LOGO_URL, COLORS, MOCK_USER } from '../constants.ts';
 
 interface NavbarProps {
-  currentView: ViewState;
-  onChangeView: (view: ViewState) => void;
+  // Use ViewStateType instead of the ViewState object value
+  currentView: ViewStateType;
+  // Use ViewStateType instead of the ViewState object value
+  onChangeView: (view: ViewStateType) => void;
   isLoggedIn?: boolean;
 }
 
