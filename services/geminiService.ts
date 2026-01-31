@@ -7,12 +7,15 @@ Hãy trả lời ngắn gọn, chính xác, chuyên nghiệp nhưng thân thiệ
 `;
 
 export const getGeminiResponse = async (userPrompt: string): Promise<string> => {
-  if (!process.env.API_KEY) {
+  // Safe access to process.env
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : null;
+
+  if (!apiKey) {
     return "Lỗi: Chưa cấu hình API Key. Vui lòng kiểm tra môi trường.";
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     
     // Using gemini-3-flash-preview for fast, intelligent text responses
     const response = await ai.models.generateContent({
