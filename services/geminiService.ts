@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
@@ -7,11 +6,17 @@ Mục tiêu của bạn là giúp học viên hiểu rõ các khái niệm, gi�
 Hãy trả lời ngắn gọn, chính xác, chuyên nghiệp nhưng thân thiện. Ngôn ngữ chính là Tiếng Việt.
 `;
 
-// Aligned with Google GenAI SDK guidelines for initialization and usage
 export const getGeminiResponse = async (userPrompt: string): Promise<string> => {
   try {
-    // Correct initialization: Always use process.env.API_KEY directly.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Kiểm tra API key an toàn trong môi trường trình duyệt
+    const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+    
+    if (!apiKey) {
+      console.warn("FAST AI Notice: API_KEY is missing from environment.");
+      return "Chào bạn! Hiện tại Trợ lý AI đang được bảo trì (thiếu API Key). Bạn vui lòng thử lại sau nhé!";
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -21,10 +26,9 @@ export const getGeminiResponse = async (userPrompt: string): Promise<string> => 
       }
     });
 
-    // Directly accessing the .text property as per instructions (not calling it as a method).
-    return response.text || "Xin lỗi, tôi không thể xử lý yêu cầu lúc này.";
+    return response.text || "FAST AI chưa thể trả lời câu hỏi này lúc này. Bạn hãy thử đặt câu hỏi khác nhé.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Đã xảy ra lỗi khi kết nối với FAST AI. Vui lòng kiểm tra lại kết nối mạng.";
+    return "Đã xảy ra lỗi khi kết nối với FAST AI. Vui lòng kiểm tra lại kết nối mạng của bạn.";
   }
 };

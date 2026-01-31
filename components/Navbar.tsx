@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, X, GraduationCap, Bot, Home, Info, User as UserIcon } from 'lucide-react';
 // Import ViewStateType to use as a TypeScript type
@@ -68,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onChangeView, isLoggedIn =
             ) : (
               <button 
                 onClick={() => onChangeView(ViewState.LOGIN)}
-                className="px-6 py-2.5 rounded-2xl text-white font-black text-sm shadow-xl shadow-teal-600/20 transition-all hover:scale-105 active:scale-95"
+                className="px-8 py-3 rounded-2xl text-white font-black text-base shadow-xl shadow-teal-600/20 transition-all hover:scale-105 active:scale-95"
                 style={{ backgroundColor: COLORS.primary }}
               >
                 Đăng nhập
@@ -114,10 +113,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onChangeView, isLoggedIn =
                 onChangeView(isLoggedIn ? ViewState.ACCOUNT : ViewState.LOGIN);
                 setIsOpen(false);
               }}
-              className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-black shadow-xl"
+              className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-5 rounded-2xl text-white font-black text-lg shadow-xl"
               style={{ backgroundColor: COLORS.primary }}
             >
-              <UserIcon size={18} />
+              <UserIcon size={20} />
               {isLoggedIn ? 'Hồ sơ cá nhân' : 'Đăng nhập ngay'}
             </button>
         </div>
