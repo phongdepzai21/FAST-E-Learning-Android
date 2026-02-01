@@ -1,118 +1,107 @@
 
 import React from 'react';
-import { Play, Flame, Search, Bell, Star, ArrowRight, Bot, Crown } from 'lucide-react';
-import { ViewState, ViewStateType } from '../types.ts';
-import { COLORS, MOCK_COURSES, VIP_EMAILS } from '../constants.ts';
-import { User } from '../services/firebase.ts';
+import { Play, Flame, Search, Star, ArrowRight, Bot, Crown, Sparkles } from 'lucide-react';
+import { ViewState } from '../types.ts';
+import { MOCK_COURSES, VIP_EMAILS } from '../constants.ts';
 
-interface MobileHomeProps {
-  user: User;
-  userProfile?: any;
-  onNavigate: (view: ViewStateType) => void;
-}
-
-const MobileHome: React.FC<MobileHomeProps> = ({ user, userProfile, onNavigate }) => {
+const MobileHome = ({ user, userProfile, onNavigate }) => {
   const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Bạn';
-  
-  // Logic kiểm tra VIP: Email cứng HOẶC Firestore
-  const isVIP = VIP_EMAILS.includes(user.email || '') || 
-                userProfile?.isVIP || 
-                userProfile?.plan === 'VIP Executive';
+  const isVIP = VIP_EMAILS.includes(user.email || '') || userProfile?.isVIP;
 
   return (
-    <div className="px-6 py-6 space-y-8 pb-24 animate-fade-in">
-      {/* Welcome Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex flex-col gap-1">
+    <div className="px-6 py-6 space-y-8 pb-32 animate-fade-in">
+      {/* Greeting Section */}
+      <div className="flex justify-between items-end">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Chào mừng,</p>
+            <span className="text-[10px] font-black text-[#007c76] uppercase tracking-widest">Premium Learning</span>
             {isVIP && (
-              <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full text-[9px] font-black border border-amber-100 shadow-sm animate-pulse">
-                <Crown size={8} fill="currentColor" /> VIP MEMBER
-              </span>
+              <div className="flex items-center gap-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black shadow-lg shadow-amber-200 animate-pulse">
+                <Crown size={8} fill="currentColor" /> VIP
+              </div>
             )}
           </div>
-          <h2 className="text-2xl font-black text-gray-900 leading-none">{firstName}! 👋</h2>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tighter">Chào {firstName}! 👋</h2>
         </div>
-        <div className="flex items-center gap-1 px-3 py-1.5 bg-orange-50 rounded-full border border-orange-100">
-          <Flame size={14} className="text-orange-500 fill-orange-500" />
-          <span className="text-xs font-black text-orange-700">{userProfile?.streak || 0} Ngày</span>
+        <div className="flex flex-col items-end">
+           <div className="flex items-center gap-1.5 bg-orange-50 px-3 py-1.5 rounded-2xl border border-orange-100 shadow-sm">
+             <Flame size={14} className="text-orange-500 fill-orange-500" />
+             <span className="text-xs font-black text-orange-700">{userProfile?.streak || 0} Ngày</span>
+           </div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-        <input 
-          type="text" 
-          placeholder="Tìm khóa học HACCP, ISO..." 
-          className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-[#007c76] transition-all text-sm font-medium"
-        />
-      </div>
-
-      {/* Featured Banner - AI Tutor */}
+      {/* Featured AI Banner */}
       <div 
         onClick={() => onNavigate(ViewState.AI_TUTOR)}
-        className="relative overflow-hidden p-6 rounded-[2rem] bg-gradient-to-br from-[#007c76] to-[#005c56] text-white shadow-xl shadow-teal-900/20 active:scale-[0.98] transition-transform"
+        className="relative group overflow-hidden p-8 rounded-[2.5rem] bg-gray-900 text-white shadow-2xl transition-all active:scale-[0.97]"
       >
-        <div className="relative z-10 space-y-4">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-[#007c76] blur-[80px] opacity-40"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500 blur-[60px] opacity-20"></div>
+        
+        <div className="relative z-10 space-y-5">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-1 bg-white/20 rounded-md text-[10px] font-black uppercase tracking-widest">AI Consultant</span>
-            {isVIP && <span className="bg-white/10 px-2 py-1 rounded text-[8px] font-bold">PREMIUM ACCESS</span>}
+            <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+              <Sparkles size={14} className="text-teal-400" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-400">FAST AI CONSULTANT</span>
           </div>
-          <h3 className="text-xl font-black leading-tight">Cần tư vấn ngay <br/>về tiêu chuẩn ISO?</h3>
-          <button className="flex items-center gap-2 text-xs font-bold bg-white text-[#007c76] px-4 py-2 rounded-xl shadow-lg">
-            Hỏi trợ lý FAST
+          <h3 className="text-2xl font-black leading-tight">Gặp gỡ Trợ lý <br/>An toàn Thực phẩm</h3>
+          <p className="text-gray-400 text-xs font-medium leading-relaxed max-w-[200px]">Giải đáp mọi thắc mắc về HACCP & ISO trong tích tắc.</p>
+          <button className="flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-2xl text-xs font-black shadow-xl">
+            TRÒ CHUYỆN NGAY
             <ArrowRight size={14} />
           </button>
         </div>
-        <Bot size={120} className="absolute -bottom-6 -right-6 text-white/10 rotate-12" />
+        <Bot size={180} className="absolute -bottom-10 -right-10 text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
       </div>
 
-      {/* Stats Quick View */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-50">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tiến độ</p>
-          <p className="text-xl font-black text-gray-900">{userProfile?.completedCourses || 0} / 12</p>
-          <div className="w-full bg-gray-100 h-1 rounded-full mt-2">
-            <div className="bg-teal-500 h-full rounded-full" style={{width: `${((userProfile?.completedCourses || 0) / 12) * 100}%`}}></div>
+        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
+          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Điểm tích lũy</p>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-black text-gray-900">{isVIP ? 'UNLIMITED' : (userProfile?.points || 0)}</span>
+            <Star size={16} className="text-yellow-400 fill-yellow-400" />
           </div>
         </div>
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-50">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Điểm tích lũy</p>
-          <p className="text-xl font-black text-gray-900">{isVIP ? '∞' : (userProfile?.points || 0)}</p>
-          <Star size={16} className="text-yellow-400 fill-yellow-400 mt-1" />
+        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
+          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Khóa học</p>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-black text-gray-900">{userProfile?.completedCourses || 0}/12</span>
+            <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
+               {/* Fix: Changed non-standard 'size' prop to 'width' and 'height' for SVGSVGElement */}
+               <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Continue Learning */}
-      <section className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h4 className="font-black text-gray-900">Tiếp tục bài học</h4>
-          <button className="text-xs font-bold text-[#007c76]" onClick={() => onNavigate(ViewState.COURSES)}>Xem thêm</button>
+      {/* Recent Courses */}
+      <section className="space-y-5">
+        <div className="flex justify-between items-center px-1">
+          <h4 className="font-black text-gray-900 text-lg">Bài học của bạn</h4>
+          <button onClick={() => onNavigate(ViewState.COURSES)} className="text-[10px] font-black text-[#007c76] uppercase tracking-widest">Xem tất cả</button>
         </div>
         <div className="space-y-4">
-          {MOCK_COURSES.slice(0, 2).map((course) => (
-            <div 
-              key={course.id}
-              className="flex items-center gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm active:bg-gray-50 transition-colors"
-            >
-              <div className="relative w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-gray-100">
-                <img src={course.image} className="w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                  <Play size={16} className="text-white fill-white" />
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h5 className="font-bold text-sm text-gray-900 truncate">{course.title}</h5>
-                <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">{course.level} • {course.duration}</p>
-                <div className="flex items-center gap-2 mt-2">
-                   <div className="flex-1 bg-gray-100 h-1 rounded-full">
-                     <div className="bg-[#007c76] h-full rounded-full" style={{width: `${course.progress}%`}}></div>
-                   </div>
-                   <span className="text-[9px] font-black text-gray-400">{course.progress}%</span>
-                </div>
-              </div>
+          {MOCK_COURSES.map((course) => (
+            <div key={course.id} className="group bg-white p-4 rounded-[2rem] shadow-sm border border-gray-50 flex items-center gap-4 active:bg-gray-50 transition-all">
+               <div className="relative w-20 h-20 shrink-0 rounded-2xl overflow-hidden shadow-inner bg-gray-100">
+                  <img src={course.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                  <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play size={24} className="text-white fill-white" />
+                  </div>
+               </div>
+               <div className="flex-1 min-w-0 py-1">
+                  <span className="text-[8px] font-black text-[#007c76] uppercase tracking-widest bg-teal-50 px-2 py-0.5 rounded-full">{course.tags[0]}</span>
+                  <h5 className="font-bold text-gray-900 text-sm mt-1 truncate">{course.title}</h5>
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#007c76] to-teal-400 rounded-full" style={{width: `${course.progress}%`}}></div>
+                    </div>
+                    <span className="text-[10px] font-black text-gray-400">{course.progress}%</span>
+                  </div>
+               </div>
             </div>
           ))}
         </div>

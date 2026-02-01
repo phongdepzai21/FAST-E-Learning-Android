@@ -1,39 +1,73 @@
+
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FAST E-Learning - Food All Standard & Training</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>FAST E-Learning - Tiêu chuẩn An toàn Thực phẩm</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Babel Standalone: Dùng để biên dịch JSX/TypeScript ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+    
     <style>
+      :root {
+        --primary: #007c76;
+        --secondary: #005c56;
+      }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #f8fafb;
+        background-color: #0f172a;
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
       }
       @keyframes fade-in {
-        from { opacity: 0; transform: translateX(-20px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes slide-up {
-        from { opacity: 0; transform: translateY(40px); }
+        from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .animate-fade-in {
-        animation: fade-in 0.8s ease-out forwards;
+        animation: fade-in 0.5s ease-out forwards;
       }
-      .animate-slide-up {
-        animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      #app-container {
+        width: 100%;
+        max-width: 430px;
+        height: 100vh;
+        max-height: 932px;
+        background: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+      @media (min-width: 640px) {
+        #app-container {
+          border-radius: 3rem;
+          height: 90vh;
+          margin: 2rem 0;
+          border: 8px solid #1e293b;
+        }
       }
       #root {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
       }
     </style>
+    
+    <!-- Import Map tinh gọn, sử dụng phiên bản ổn định -->
     <script type="importmap">
 {
   "imports": {
@@ -41,7 +75,7 @@
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.39.0",
-    "lucide-react": "https://esm.sh/lucide-react@0.463.0",
+    "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react,react-dom",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/"
   }
@@ -49,7 +83,18 @@
 </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
+    <div id="app-container">
+      <div id="root"></div>
+    </div>
+    
+    <!-- Sửa lỗi: Loại bỏ preset 'env' vì nó gây ra lỗi .targets["esmodules"] trong môi trường browser-only của Babel Standalone.
+         Các preset 'react' và 'typescript' là đủ để xử lý mã nguồn của ứng dụng. -->
+    <script 
+      type="text/babel" 
+      data-presets="react,typescript" 
+      data-type="module" 
+      src="index.tsx"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

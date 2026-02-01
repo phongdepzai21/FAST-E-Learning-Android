@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
@@ -8,15 +9,8 @@ Hãy trả lời ngắn gọn, chính xác, chuyên nghiệp nhưng thân thiệ
 
 export const getGeminiResponse = async (userPrompt: string): Promise<string> => {
   try {
-    // Kiểm tra API key an toàn trong môi trường trình duyệt
-    const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
-    
-    if (!apiKey) {
-      console.warn("FAST AI Notice: API_KEY is missing from environment.");
-      return "Chào bạn! Hiện tại Trợ lý AI đang được bảo trì (thiếu API Key). Bạn vui lòng thử lại sau nhé!";
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
+    // Correctly initialize GoogleGenAI using process.env.API_KEY directly as per guidelines
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',

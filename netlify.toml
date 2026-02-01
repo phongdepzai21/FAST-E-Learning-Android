@@ -3,13 +3,16 @@
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 [[headers]]
   for = "/*.tsx"
   [headers.values]
-    Content-Type = "application/javascript"
+    Content-Type = "text/plain"
+    Access-Control-Allow-Origin = "*"
 
 [[headers]]
   for = "/*.ts"
   [headers.values]
-    Content-Type = "application/javascript"
+    Content-Type = "text/plain"
+    Access-Control-Allow-Origin = "*"

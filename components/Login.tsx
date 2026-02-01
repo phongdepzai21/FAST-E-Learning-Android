@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mail, Lock, Loader2, AlertCircle, ChevronLeft, X, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, ChevronLeft, X, ShieldCheck, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { LOGO_URL } from '../constants.ts';
 import { loginWithEmail, registerWithEmail, signInWithGoogle } from '../services/firebase.ts';
 
@@ -44,6 +44,7 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State cho tính năng hiện mật khẩu
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -166,11 +167,21 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
 
         <div className="space-y-1.5">
           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu</label>
-          <input
-            type="password" required placeholder="••••••••"
-            value={password} onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-[#007c76] outline-none transition-all font-bold text-gray-700 shadow-sm"
-          />
+          <div className="relative group">
+            <input
+              type={showPassword ? "text" : "password"} // Chuyển đổi type dynamically
+              required placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-[#007c76] outline-none transition-all font-bold text-gray-700 shadow-sm pr-14"
+            />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[#007c76] transition-colors focus:outline-none"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
         </div>
 
         <button
