@@ -3,6 +3,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <!-- Thêm viewport-fit=cover để hỗ trợ tai thỏ/notch trên iOS và Android -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>FAST E-Learning - Tiêu chuẩn An toàn Thực phẩm</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +15,7 @@
       :root {
         --primary: #007c76;
         --secondary: #005c56;
+        /* Các biến vùng an toàn để tránh notch và home indicator */
         --sat: env(safe-area-inset-top);
         --sar: env(safe-area-inset-right);
         --sab: env(safe-area-inset-bottom);
@@ -33,13 +35,23 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        /* Sử dụng dvh để chiều cao luôn chính xác trên di động */
         min-height: 100dvh;
         overflow: hidden;
       }
 
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 0.5s ease-out forwards;
+      }
+
       #app-container {
         width: 100%;
-        max-width: 100%;
+        max-width: 100%; /* Mặc định là full màn hình cho mobile */
         height: 100dvh;
         background: white;
         position: relative;
@@ -48,12 +60,13 @@
         flex-direction: column;
       }
 
+      /* Tối ưu cho Tablet và iPad (từ 640px trở lên) */
       @media (min-width: 640px) {
         body {
           background: radial-gradient(circle at top right, #1e293b, #0f172a);
         }
         #app-container {
-          max-width: 600px;
+          max-width: 600px; /* Tablet hiển thị rộng hơn mobile một chút */
           height: 92dvh;
           border-radius: 2.5rem;
           border: 12px solid #1e293b;
@@ -61,9 +74,10 @@
         }
       }
 
+      /* Tối ưu cho iPad Pro / Desktop lớn (từ 1024px trở lên) */
       @media (min-width: 1024px) {
         #app-container {
-          max-width: 430px;
+          max-width: 430px; /* Quay lại size phone chuẩn để giữ tính "App" */
         }
       }
 
@@ -73,11 +87,22 @@
         overflow: hidden;
       }
 
+      /* Xử lý vùng an toàn bằng CSS Utility nếu Tailwind chưa có */
       .pt-safe { padding-top: var(--sat); }
       .pb-safe { padding-bottom: var(--sab); }
+      .mt-safe { margin-top: var(--sat); }
+      .mb-safe { margin-bottom: var(--sab); }
 
-      ::-webkit-scrollbar { width: 4px; }
-      ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
     </style>
     
     <script type="importmap">
@@ -93,11 +118,6 @@
   }
 }
 </script>
-
-    <script>
-      // Đảm bảo process.env không gây lỗi runtime trên trình duyệt
-      window.process = window.process || { env: {} };
-    </script>
   </head>
   <body>
     <div id="app-container">
