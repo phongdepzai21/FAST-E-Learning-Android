@@ -31,22 +31,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Khởi tạo Google Provider với các tham số tối ưu
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ 
+  prompt: 'select_account'
+});
 
-googleProvider.setCustomParameters({ prompt: 'select_account' });
-
+/**
+ * LƯU Ý QUAN TRỌNG ĐỂ FIX LỖI GOOGLE LOGIN:
+ * 1. Truy cập Firebase Console -> Authentication -> Settings -> Authorized Domains.
+ * 2. Thêm domain của trang web này (ví dụ: your-site.netlify.app) vào danh sách.
+ * 3. Đảm bảo đã bật phương thức "Google" trong tab Sign-in method.
+ */
 export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const loginWithEmail = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
 export const registerWithEmail = (email: string, pass: string) => createUserWithEmailAndPassword(auth, email, pass);
 export const logoutUser = () => signOut(auth);
 
-/**
- * ĐỒNG BỘ VIP VỚI FIREBASE CONSOLE:
- * 1. Mở Firestore Database.
- * 2. Tạo collection 'users'.
- * 3. Document ID phải khớp với UID trong tab Authentication.
- * 4. Các field cần thiết: { isVIP: true, plan: "VIP Executive", points: 5000 }
- */
 export const getUserProfile = async (uid: string) => {
   const userRef = doc(db, "users", uid);
   const userSnap = await getDoc(userRef);
@@ -54,7 +56,6 @@ export const getUserProfile = async (uid: string) => {
   if (userSnap.exists()) {
     return userSnap.data();
   } else {
-    // Nếu chưa có trong DB, tạo document mới (Standard)
     const defaultProfile = {
       plan: 'Standard',
       points: 0,

@@ -44,7 +44,7 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State cho tính năng hiện mật khẩu
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +62,7 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
       }
       onSuccess();
     } catch (err: any) {
+      console.error("Auth Error:", err);
       setError(isLogin ? 'Email hoặc mật khẩu không đúng.' : 'Email này đã tồn tại trên hệ thống.');
     } finally {
       setIsLoading(false);
@@ -75,8 +76,16 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
       await signInWithGoogle();
       onSuccess();
     } catch (err: any) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        setError('Lỗi kết nối Google. Vui lòng thử lại.');
+      console.error("Google Login Error Details:", err);
+      // Xử lý các mã lỗi phổ biến của Firebase Auth
+      if (err.code === 'auth/popup-blocked') {
+        setError('Trình duyệt đã chặn cửa sổ đăng nhập. Vui lòng cho phép popup và thử lại.');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('Đăng nhập Google chưa được bật trong Firebase Console.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('Tên miền này chưa được cấp quyền đăng nhập trong Firebase.');
+      } else if (err.code !== 'auth/popup-closed-by-user') {
+        setError(`Lỗi đăng nhập: ${err.message || 'Không thể kết nối Google'}`);
       }
     } finally {
       setIsLoading(false);
@@ -169,7 +178,7 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu</label>
           <div className="relative group">
             <input
-              type={showPassword ? "text" : "password"} // Chuyển đổi type dynamically
+              type={showPassword ? "text" : "password"}
               required placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-[#007c76] outline-none transition-all font-bold text-gray-700 shadow-sm pr-14"
