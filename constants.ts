@@ -1,3 +1,4 @@
+
 import { Course, User } from './types';
 
 export const COLORS = {
@@ -12,6 +13,15 @@ export const COLORS = {
   standard: '#0ea5e9',
   pro: '#f59e0b'
 };
+
+// DANH SÁCH EMAIL VIP CỨNG TRONG CODE
+// Bạn chỉ cần thêm email của bạn hoặc khách hàng vào đây
+export const VIP_EMAILS = [
+  "admin@fast.com",
+  "chuyen.nv@food-industry.com",
+  "test@gmail.com",
+  "your-email@example.com" // Thay thế bằng email thực tế của bạn
+];
 
 export const LOGO_URL = "https://www.dropbox.com/scl/fi/jhuyhtd5bwdgqaza4ivkt/BetterImage_1769225491368.png?rlkey=hgb7cxj3tioijr09n6sc5l6t0&st=90eeg283&raw=1";
 
@@ -35,7 +45,7 @@ export const MEMBERSHIP_PLANS = [
   {
     id: 'pro',
     name: 'Professional',
-    price: '499k / tháng',
+    price: '999k / tháng',
     features: ['Toàn bộ 50+ khóa học', 'Chứng chỉ chuẩn ISO', 'FAST AI không giới hạn', 'Hỗ trợ Mentor'],
     color: COLORS.primary,
     isPopular: true,
@@ -44,7 +54,7 @@ export const MEMBERSHIP_PLANS = [
   {
     id: 'vip',
     name: 'VIP Executive',
-    price: '999k / tháng',
+    price: '2.999k / tháng',
     features: ['Đào tạo 1-1 với Chuyên gia', 'Đánh giá doanh nghiệp', 'Báo cáo xu hướng Food Safety', 'Sự kiện Offline'],
     color: COLORS.vip,
     icon: 'Crown'
