@@ -1,90 +1,97 @@
 
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.tsx';
-import Hero from './components/Hero.tsx';
+import MobileHome from './components/MobileHome.tsx';
 import CourseList from './components/CourseList.tsx';
 import AITutor from './components/AITutor.tsx';
-import Footer from './components/Footer.tsx';
 import Login from './components/Login.tsx';
 import Account from './components/Account.tsx';
-// Import ViewStateType to use as a TypeScript type
 import { ViewState, ViewStateType } from './types.ts';
-import { COLORS } from './constants.ts';
+import { auth, onAuthStateChanged, User, logoutUser } from './services/firebase.ts';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // Fixed error: Use ViewStateType instead of the ViewState object value as the generic type
-  const [currentView, setCurrentView] = useState<ViewStateType>(ViewState.LOGIN);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<ViewStateType>(ViewState.HOME);
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setCurrentView(ViewState.ACCOUNT);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setCurrentView(ViewState.HOME);
+    } catch (error) {
+      console.error("Logout error", error);
+    }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentView(ViewState.LOGIN);
-  };
+  if (isAuthLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-[100]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-teal-100 border-t-[#007c76] rounded-full animate-spin"></div>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">FAST E-Learning</span>
+        </div>
+      </div>
+    );
+  }
 
+  // NẾU CHƯA ĐĂNG NHẬP: Bắt buộc hiển thị màn hình Login
+  if (!user) {
+    return <Login onSuccess={() => setCurrentView(ViewState.HOME)} />;
+  }
+
+  // NẾU ĐÃ ĐĂNG NHẬP: Hiển thị giao diện chính của App
   const renderContent = () => {
     switch (currentView) {
-      case ViewState.LOGIN:
-        return <Login onSuccess={handleLoginSuccess} />;
       case ViewState.HOME:
-        return (
-          <>
-            <Hero onStart={() => isLoggedIn ? setCurrentView(ViewState.COURSES) : setCurrentView(ViewState.LOGIN)} />
-            <CourseList />
-          </>
-        );
+        return <MobileHome user={user} onNavigate={setCurrentView} />;
       case ViewState.COURSES:
-        return (
-          <div className="pt-8">
-            <CourseList />
-          </div>
-        );
+        return <div className="pb-24"><CourseList /></div>;
       case ViewState.AI_TUTOR:
         return <AITutor />;
       case ViewState.ACCOUNT:
-        return isLoggedIn ? <Account onLogout={handleLogout} /> : <Login onSuccess={handleLoginSuccess} />;
-      case ViewState.ABOUT:
-        return (
-            <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-                <h2 className="text-4xl font-extrabold mb-6" style={{color: COLORS.primary}}>Về FAST E-Learning</h2>
-                <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed mb-12">
-                    FAST (Food All Standard & Training) được thành lập với sứ mệnh nâng cao chất lượng an toàn thực phẩm 
-                    thông qua giáo dục và công nghệ.
-                </p>
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                    <div className="p-8 bg-white rounded-2xl shadow-sm border border-gray-100">
-                        <h3 className="font-bold text-xl mb-3 text-gray-800">Sứ Mệnh</h3>
-                        <p className="text-gray-500">Phổ cập kiến thức chuẩn hóa về an toàn thực phẩm cho mọi doanh nghiệp.</p>
-                    </div>
-                    <div className="p-8 bg-white rounded-2xl shadow-sm border border-gray-100">
-                        <h3 className="font-bold text-xl mb-3 text-gray-800">Tầm Nhìn</h3>
-                        <p className="text-gray-500">Trở thành nền tảng đào tạo số 1 về tiêu chuẩn chất lượng thực phẩm.</p>
-                    </div>
-                    <div className="p-8 bg-white rounded-2xl shadow-sm border border-gray-100">
-                        <h3 className="font-bold text-xl mb-3 text-gray-800">Giá Trị Cốt Lõi</h3>
-                        <p className="text-gray-500">Kiến thức chuẩn xác - Phát triển bền vững.</p>
-                    </div>
-                </div>
-            </div>
-        );
+        return <Account user={user} onLogout={handleLogout} />;
       default:
-        return <Login onSuccess={handleLoginSuccess} />;
+        return <MobileHome user={user} onNavigate={setCurrentView} />;
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-[#374151] bg-[#f8fafb]">
-      {currentView !== ViewState.LOGIN && (
-        <Navbar currentView={currentView} onChangeView={setCurrentView} isLoggedIn={isLoggedIn} />
+    <div className="min-h-screen bg-[#f8fafb] flex flex-col font-sans max-w-md mx-auto shadow-2xl relative overflow-x-hidden">
+      {/* Top Header - Đơn giản cho Mobile */}
+      {currentView !== ViewState.ACCOUNT && (
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#007c76] rounded-xl flex items-center justify-center shadow-lg shadow-teal-900/10">
+               <span className="text-white font-black text-sm">F</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-gray-900 text-sm tracking-tighter leading-none">FAST</span>
+              <span className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Standard & Training</span>
+            </div>
+          </div>
+          <button 
+            onClick={() => setCurrentView(ViewState.ACCOUNT)} 
+            className="w-9 h-9 rounded-xl overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100"
+          >
+            <img src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="avatar" />
+          </button>
+        </header>
       )}
-      <main className="flex-grow">
+
+      <main className="flex-grow overflow-y-auto">
         {renderContent()}
       </main>
-      {currentView !== ViewState.LOGIN && currentView !== ViewState.ACCOUNT && <Footer />}
+
+      {/* Bottom Navigation Bar */}
+      <Navbar currentView={currentView} onChangeView={setCurrentView} user={user} />
     </div>
   );
 }

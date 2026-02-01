@@ -6,7 +6,8 @@ export const ViewState = {
   AI_TUTOR: 'AI_TUTOR',
   ABOUT: 'ABOUT',
   LOGIN: 'LOGIN',
-  ACCOUNT: 'ACCOUNT'
+  ACCOUNT: 'ACCOUNT',
+  CONSOLE: 'CONSOLE'
 } as const;
 
 // Type representing the values of ViewState
