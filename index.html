@@ -3,19 +3,28 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>FAST E-Learning - Tiêu chuẩn An toàn Thực phẩm</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Babel Standalone: Dùng để biên dịch JSX/TypeScript ngay trên trình duyệt -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
     
     <style>
       :root {
         --primary: #007c76;
         --secondary: #005c56;
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
       }
+      
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+
       body {
         font-family: 'Inter', sans-serif;
         background-color: #0f172a;
@@ -24,50 +33,53 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: hidden;
       }
-      @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in {
-        animation: fade-in 0.5s ease-out forwards;
-      }
+
       #app-container {
         width: 100%;
-        max-width: 430px;
-        height: 100vh;
-        max-height: 932px;
+        max-width: 100%;
+        height: 100dvh;
         background: white;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
       }
+
       @media (min-width: 640px) {
+        body {
+          background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        }
         #app-container {
-          border-radius: 3rem;
-          height: 90vh;
-          margin: 2rem 0;
-          border: 8px solid #1e293b;
+          max-width: 600px;
+          height: 92dvh;
+          border-radius: 2.5rem;
+          border: 12px solid #1e293b;
+          box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7);
         }
       }
+
+      @media (min-width: 1024px) {
+        #app-container {
+          max-width: 430px;
+        }
+      }
+
       #root {
         height: 100%;
+        width: 100%;
         overflow: hidden;
       }
-      ::-webkit-scrollbar {
-        width: 4px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 10px;
-      }
+
+      .pt-safe { padding-top: var(--sat); }
+      .pb-safe { padding-bottom: var(--sab); }
+
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
     
-    <!-- Import Map: Đồng bộ hóa các thư viện để tránh xung đột phiên bản -->
     <script type="importmap">
 {
   "imports": {
@@ -76,22 +88,22 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.39.0",
     "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react,react-dom",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
+
+    <script>
+      // Đảm bảo process.env không gây lỗi runtime trên trình duyệt
+      window.process = window.process || { env: {} };
+    </script>
   </head>
   <body>
     <div id="app-container">
       <div id="root"></div>
     </div>
     
-    <!-- 
-      Sửa lỗi: Loại bỏ data-type="module". Babel Standalone sẽ tự động biên dịch và xử lý các câu lệnh import.
-      Việc sử dụng data-type="module" thường kích hoạt chế độ tự động dò tìm môi trường của preset-env 
-      vốn hay gây lỗi ".targets['esmodules'] must be a boolean" trên một số trình duyệt hoặc phiên bản Babel.
-    -->
     <script 
       type="text/babel" 
       data-presets="react,typescript" 
