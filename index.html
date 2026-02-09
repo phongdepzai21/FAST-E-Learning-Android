@@ -3,132 +3,80 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <!-- Thêm viewport-fit=cover để hỗ trợ tai thỏ/notch trên iOS và Android -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>FAST E-Learning - Tiêu chuẩn An toàn Thực phẩm</title>
+    <title>FAST E-Learning - Chuyên gia An toàn Thực phẩm</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
     
     <style>
       :root {
         --primary: #007c76;
         --secondary: #005c56;
-        /* Các biến vùng an toàn để tránh notch và home indicator */
-        --sat: env(safe-area-inset-top);
-        --sar: env(safe-area-inset-right);
-        --sab: env(safe-area-inset-bottom);
-        --sal: env(safe-area-inset-left);
       }
-      
       * {
-        -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
       }
-
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #0f172a;
+      html, body {
         margin: 0;
         padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        /* Sử dụng dvh để chiều cao luôn chính xác trên di động */
-        min-height: 100dvh;
-        overflow: hidden;
-      }
-
-      @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .animate-fade-in {
-        animation: fade-in 0.5s ease-out forwards;
-      }
-
-      #app-container {
         width: 100%;
-        max-width: 100%; /* Mặc định là full màn hình cho mobile */
-        height: 100dvh;
-        background: white;
-        position: relative;
+        height: 100%;
+        background-color: #f8fafb;
+        font-family: 'Inter', sans-serif;
+        color: #1f2937;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
       }
-
-      /* Tối ưu cho Tablet và iPad (từ 640px trở lên) */
-      @media (min-width: 640px) {
-        body {
-          background: radial-gradient(circle at top right, #1e293b, #0f172a);
-        }
-        #app-container {
-          max-width: 600px; /* Tablet hiển thị rộng hơn mobile một chút */
-          height: 92dvh;
-          border-radius: 2.5rem;
-          border: 12px solid #1e293b;
-          box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7);
-        }
-      }
-
-      /* Tối ưu cho iPad Pro / Desktop lớn (từ 1024px trở lên) */
-      @media (min-width: 1024px) {
-        #app-container {
-          max-width: 430px; /* Quay lại size phone chuẩn để giữ tính "App" */
-        }
-      }
-
       #root {
         height: 100%;
         width: 100%;
-        overflow: hidden;
+      }
+      
+      /* Smooth transitions */
+      .view-transition {
+        animation: fade-in 0.3s ease-out;
       }
 
-      /* Xử lý vùng an toàn bằng CSS Utility nếu Tailwind chưa có */
-      .pt-safe { padding-top: var(--sat); }
-      .pb-safe { padding-bottom: var(--sab); }
-      .mt-safe { margin-top: var(--sat); }
-      .mb-safe { margin-bottom: var(--sab); }
-
-      ::-webkit-scrollbar {
-        width: 4px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 10px;
-      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 5px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
     
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
     "@google/genai": "https://esm.sh/@google/genai@1.39.0",
     "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react,react-dom",
+    "firebase/app": "https://esm.sh/firebase@10.13.1/app",
+    "firebase/auth": "https://esm.sh/firebase@10.13.1/auth",
+    "firebase/storage": "https://esm.sh/firebase@10.13.1/storage",
+    "firebase/firestore": "https://esm.sh/firebase@10.13.1/firestore",
+    "@emailjs/browser": "https://esm.sh/@emailjs/browser@4.3.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "firebase/": "https://esm.sh/firebase@^12.9.0/"
   }
 }
 </script>
   </head>
   <body>
-    <div id="app-container">
-      <div id="root"></div>
+    <div id="root">
+      <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; background: white;">
+        <div style="width: 42px; height: 42px; border: 4px solid #f0fdfa; border-top-color: #007c76; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <div style="text-align: center;">
+          <p style="font-weight: 900; color: #007c76; letter-spacing: 0.3em; font-size: 12px; text-transform: uppercase; margin: 0;">FAST E-LEARNING</p>
+          <p style="font-size: 10px; color: #94a3b8; margin-top: 8px; font-weight: 500;">Đang tải dữ liệu thực phẩm an toàn...</p>
+        </div>
+      </div>
     </div>
-    
-    <script 
-      type="text/babel" 
-      data-presets="react,typescript" 
-      src="index.tsx"
-      crossorigin="anonymous"
-    ></script>
+    <script type="text/babel" data-presets="react,typescript" src="index.tsx" crossorigin="anonymous"></script>
   </body>
 </html>

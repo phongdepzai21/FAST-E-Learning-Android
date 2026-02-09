@@ -29,7 +29,8 @@ interface AccountProps {
   onLogout: () => void;
 }
 
-const SimpleModal = ({ title, isOpen, onClose, children }: { title: string, isOpen: boolean, onClose: () => void, children: React.ReactNode }) => {
+// Fixed SimpleModal definition by making children optional to prevent TS missing prop errors in JSX
+const SimpleModal = ({ title, isOpen, onClose, children }: { title: string, isOpen: boolean, onClose: () => void, children?: React.ReactNode }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">

@@ -1,5 +1,5 @@
 
-import { Course, User } from './types';
+import { Course } from './types';
 
 export const COLORS = {
   primary: '#007c76',
@@ -16,7 +16,7 @@ export const COLORS = {
 
 export const VIP_EMAILS = [
   "h1h4@gmail.com",
-  "hkc@gmail.com", // Email yêu cầu
+  "hkc@gmail.com",
   "khoaitay041116@gmail.com"
 ];
 
@@ -24,24 +24,34 @@ export const LOGO_URL = "https://www.dropbox.com/scl/fi/jhuyhtd5bwdgqaza4ivkt/Be
 
 export const MOCK_COURSES: Course[] = [
   {
-    id: '1',
-    title: 'HACCP: Kiểm soát Mối nguy Nâng cao',
-    description: 'Phân tích sâu các mối nguy vật lý, hóa học và sinh học trong dây chuyền sản xuất thực phẩm hiện đại.',
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-    duration: '8 giờ',
-    level: 'Advanced',
-    tags: ['HACCP', 'ISO 22000'],
-    progress: 85
+    id: 'haccp-01',
+    title: 'HACCP: 7 Nguyên tắc Vàng',
+    description: 'Hướng dẫn chi tiết thiết lập hệ thống phân tích mối nguy và điểm kiểm soát tới hạn theo chuẩn quốc tế.',
+    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+    duration: '12 giờ',
+    level: 'Cơ bản',
+    tags: ['HACCP', 'TCVN'],
+    progress: 0
   },
   {
-    id: '2',
-    title: 'ISO 22000:2018 Đánh giá viên trưởng',
-    description: 'Khóa học đào tạo kỹ năng đánh giá hệ thống quản lý an toàn thực phẩm theo tiêu chuẩn ISO quốc tế.',
-    image: 'https://images.unsplash.com/photo-1454165833762-02ad50e8988d?auto=format&fit=crop&w=800&q=80',
-    duration: '40 giờ',
-    level: 'Advanced',
-    tags: ['ISO', 'Audit'],
-    progress: 42
+    id: 'iso-22000',
+    title: 'ISO 22000:2018 Hệ thống Quản lý',
+    description: 'Xây dựng chuỗi cung ứng thực phẩm an toàn từ nông trại đến bàn ăn theo tiêu chuẩn ISO mới nhất.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+    duration: '24 giờ',
+    level: 'Nâng cao',
+    tags: ['ISO', 'Management'],
+    progress: 0
+  },
+  {
+    id: 'tcvn-labelling',
+    title: 'TCVN: Quy định Ghi nhãn Thực phẩm',
+    description: 'Cập nhật các quy định pháp luật Việt Nam mới nhất về ghi nhãn và công bố chất lượng thực phẩm.',
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+    duration: '6 giờ',
+    level: 'Pháp luật',
+    tags: ['TCVN', 'Labelling'],
+    progress: 0
   }
 ];
 
@@ -50,15 +60,15 @@ export const MEMBERSHIP_PLANS = [
     id: 'standard',
     name: 'Standard',
     price: 'Miễn phí',
-    features: ['Truy cập 5 khóa học cơ bản', 'Tài liệu PDF', 'FAST AI cơ bản'],
+    features: ['Truy cập khóa TCVN cơ bản', 'Tài liệu PDF tiêu chuẩn', 'FAST AI Chat'],
     color: COLORS.standard,
     icon: 'Book'
   },
   {
     id: 'vip',
     name: 'VIP Executive',
-    price: '2.999k / tháng',
-    features: ['Đào tạo 1-1 với Chuyên gia', 'Đánh giá doanh nghiệp', 'Báo cáo xu hướng Food Safety', 'Sự kiện Offline'],
+    price: '2.999k / khóa',
+    features: ['Chứng chỉ HACCP quốc tế', 'Tư vấn ISO 1-1', 'Báo cáo mối nguy hàng tuần', 'FAST AI Pro'],
     color: COLORS.vip,
     icon: 'Crown'
   }

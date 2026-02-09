@@ -1,69 +1,109 @@
 
-import React, { useState } from 'react';
-import { Mail, Lock, Loader2, AlertCircle, ChevronLeft, X, ShieldCheck, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff, Shield, CheckCircle2, KeyRound, RefreshCw } from 'lucide-react';
 import { LOGO_URL } from '../constants.ts';
 import { loginWithEmail, registerWithEmail, signInWithGoogle } from '../services/firebase.ts';
+import { generateOTP, sendOTPEmail } from '../services/emailService.ts';
 
-const TermsModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 max-h-[85vh] overflow-y-auto animate-slide-up">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-teal-50 text-[#007c76] rounded-2xl"><ShieldCheck size={24} /></div>
-            <h3 className="text-xl font-black text-gray-900">Điều khoản sử dụng</h3>
-          </div>
-          <button onClick={onClose} className="p-2 bg-gray-50 rounded-full text-gray-400"><X size={20} /></button>
-        </div>
-        
-        <div className="space-y-6 text-sm text-gray-600 font-medium leading-relaxed">
-          <section>
-            <h4 className="font-black text-gray-900 mb-2 uppercase text-[10px] tracking-widest">1. Quyền sở hữu nội dung</h4>
-            <p>Tất cả bài giảng, tài liệu PDF và video trên FAST E-Learning thuộc bản quyền của Food All Standard & Training. Bạn không được phép ghi hình hoặc chia sẻ tài liệu ra ngoài hệ thống.</p>
-          </section>
-          <section>
-            <h4 className="font-black text-gray-900 mb-2 uppercase text-[10px] tracking-widest">2. Trạng thái VIP & Hội viên</h4>
-            <p>Quyền lợi VIP được đồng bộ trực tiếp từ hệ thống quản lý của FAST. Mọi tranh chấp về gói dịch vụ sẽ được giải quyết dựa trên lịch sử giao dịch tại Firebase Console.</p>
-          </section>
-          <section>
-            <h4 className="font-black text-gray-900 mb-2 uppercase text-[10px] tracking-widest">3. Bảo mật tài khoản</h4>
-            <p>FAST sử dụng công nghệ bảo mật của Google Firebase. Bạn có trách nhiệm bảo mật mật khẩu và email cá nhân.</p>
-          </section>
-        </div>
+interface LoginProps {
+  onSuccess: () => void;
+}
 
-        <button onClick={onClose} className="w-full py-4 bg-[#007c76] text-white font-black rounded-2xl mt-8 shadow-xl shadow-teal-100 flex items-center justify-center gap-2">
-          <CheckCircle2 size={18} /> TÔI ĐỒNG Ý VỚI ĐIỀU KHOẢN
-        </button>
-      </div>
-    </div>
-  );
-};
+type AuthStep = 'INPUT' | 'OTP_VERIFY';
 
-const Login = ({ onSuccess }: { onSuccess: () => void }) => {
+const Login: React.FC<LoginProps> = ({ onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState<AuthStep>('INPUT');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  
+  // OTP State
+  const [generatedOTP, setGeneratedOTP] = useState('');
+  const [userOTP, setUserOTP] = useState('');
+  const [timer, setTimer] = useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    let interval: any;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer(t => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const passwordStrength = useMemo(() => {
+    if (!password) return 0;
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    return strength;
+  }, [password]);
+
+  const handleStartAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
-    setError('');
+
     try {
       if (isLogin) {
+        // Đăng nhập thẳng không cần OTP (hoặc tùy chỉnh nếu muốn)
         await loginWithEmail(email, password);
+        onSuccess();
       } else {
-        await registerWithEmail(email, password);
+        // Đăng ký: Gửi OTP trước
+        if (password.length < 6) throw new Error('Mật khẩu quá ngắn.');
+        
+        const otp = generateOTP();
+        setGeneratedOTP(otp);
+        
+        // Gửi email qua EmailJS
+        await sendOTPEmail(email, otp);
+        
+        setStep('OTP_VERIFY');
+        setTimer(60);
       }
-      onSuccess();
     } catch (err: any) {
-      console.error("Auth Error:", err);
-      setError(isLogin ? 'Email hoặc mật khẩu không đúng.' : 'Email này đã tồn tại trên hệ thống.');
+      setError(err.message || 'Lỗi hệ thống.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    if (userOTP === generatedOTP) {
+      try {
+        await registerWithEmail(email, password);
+        onSuccess();
+      } catch (err: any) {
+        setError('Không thể tạo tài khoản. Có thể email đã tồn tại.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setError('Mã OTP không chính xác. Vui lòng thử lại.');
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (timer > 0) return;
+    setIsLoading(true);
+    try {
+      const otp = generateOTP();
+      setGeneratedOTP(otp);
+      await sendOTPEmail(email, otp);
+      setTimer(60);
+      setError(null);
+    } catch (err) {
+      setError('Gửi lại mã thất bại.');
     } finally {
       setIsLoading(false);
     }
@@ -71,143 +111,177 @@ const Login = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    setError('');
+    setError(null);
     try {
       await signInWithGoogle();
       onSuccess();
     } catch (err: any) {
-      console.error("Google Login Error Details:", err);
-      // Xử lý các mã lỗi phổ biến của Firebase Auth
-      if (err.code === 'auth/popup-blocked') {
-        setError('Trình duyệt đã chặn cửa sổ đăng nhập. Vui lòng cho phép popup và thử lại.');
-      } else if (err.code === 'auth/operation-not-allowed') {
-        setError('Đăng nhập Google chưa được bật trong Firebase Console.');
-      } else if (err.code === 'auth/unauthorized-domain') {
-        setError('Tên miền này chưa được cấp quyền đăng nhập trong Firebase.');
-      } else if (err.code !== 'auth/popup-closed-by-user') {
-        setError(`Lỗi đăng nhập: ${err.message || 'Không thể kết nối Google'}`);
-      }
+      setError('Không thể đăng nhập bằng Google.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!showForm) {
+  if (step === 'OTP_VERIFY') {
     return (
-      <div className="min-h-screen bg-white max-w-md mx-auto flex flex-col items-center justify-between p-10 animate-fade-in relative overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
-
-        <div className="w-full flex flex-col items-center mt-24 z-10">
-          <img src={LOGO_URL} alt="FAST Logo" className="h-32 w-auto mb-6 animate-slide-up object-contain" />
-          <div className="text-center space-y-1">
-            <p className="text-[12px] font-black uppercase tracking-[0.3em] text-[#007c76]">Food All Standard</p>
-            <p className="text-[12px] font-bold uppercase tracking-[0.3em] text-gray-400">& Training</p>
+      <div className="h-full w-full bg-white flex flex-col p-8 sm:p-12 animate-fade-in">
+        <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+          <div className="mb-10 text-center">
+            <div className="w-20 h-20 bg-teal-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6">
+              <KeyRound className="text-[#007c76]" size={32} />
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Xác thực Email</h1>
+            <p className="text-gray-400 text-xs mt-2 font-medium">Mã OTP đã được gửi đến <span className="text-gray-900 font-bold">{email}</span></p>
           </div>
-        </div>
 
-        <div className="w-full z-10 space-y-4 mb-10">
           {error && (
-            <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold flex items-center gap-3 animate-shake mb-4">
-              <AlertCircle size={16} className="shrink-0" /> {error}
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
+              <AlertCircle className="text-red-500 shrink-0" size={18} />
+              <p className="text-red-600 text-xs font-bold leading-tight">{error}</p>
             </div>
           )}
-          
-          <button 
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-            className="w-full py-4 bg-white border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-4 font-bold text-gray-700 shadow-sm active:scale-95 transition-all disabled:opacity-50"
-          >
-            {isLoading ? <Loader2 className="animate-spin" size={20} /> : (
-              <>
-                <img src="https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png" className="w-5 h-5" alt="Google" />
-                <span className="text-sm">Tiếp tục với Google</span>
-              </>
-            )}
-          </button>
 
-          <button 
-            onClick={() => { setIsLogin(true); setShowForm(true); setError(''); }}
-            className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl shadow-gray-200 active:scale-95 transition-all text-sm"
-          >
-            Đăng nhập với Email
-          </button>
+          <form onSubmit={handleVerifyOTP} className="space-y-6">
+            <div className="flex justify-between gap-2">
+              <input
+                type="text"
+                maxLength={6}
+                value={userOTP}
+                onChange={(e) => setUserOTP(e.target.value.replace(/\D/g, ''))}
+                placeholder="Nhập 6 số"
+                className="w-full text-center tracking-[1em] text-2xl font-black py-4 bg-gray-50 border border-transparent focus:border-teal-500 focus:bg-white rounded-2xl outline-none transition-all"
+              />
+            </div>
 
-          <button 
-            onClick={() => { setIsLogin(false); setShowForm(true); setError(''); }}
-            className="w-full py-4 text-[#007c76] font-black text-xs uppercase tracking-widest active:opacity-60 transition-all"
-          >
-            Tạo tài khoản mới
-          </button>
+            <button
+              type="submit"
+              disabled={isLoading || userOTP.length < 6}
+              className="w-full bg-[#007c76] text-white py-4 rounded-2xl font-black text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Xác nhận & Đăng ký'}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <button 
+              onClick={handleResendOTP}
+              disabled={timer > 0 || isLoading}
+              className={`text-xs font-bold flex items-center justify-center gap-2 mx-auto ${timer > 0 ? 'text-gray-300' : 'text-[#007c76]'}`}
+            >
+              <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+              {timer > 0 ? `Gửi lại mã sau ${timer}s` : 'Gửi lại mã OTP'}
+            </button>
+            <button 
+              onClick={() => setStep('INPUT')}
+              className="mt-4 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-gray-600"
+            >
+              Quay lại
+            </button>
+          </div>
         </div>
-        <p className="text-[9px] text-gray-300 font-bold uppercase tracking-[0.2em] mt-4">FAST E-Learning • Version 2.6.0</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white max-w-md mx-auto p-8 animate-slide-up flex flex-col">
-      <header className="flex items-center justify-between mb-12">
-        <button onClick={() => setShowForm(false)} className="p-2 rounded-xl bg-gray-50 text-gray-400 active:scale-90 transition-transform">
-          <ChevronLeft size={24} />
-        </button>
-        <div className="flex flex-col items-end">
-          <span className="text-[8px] font-black text-[#007c76] uppercase">Food All Standard</span>
-          <span className="text-[8px] font-bold text-gray-300 uppercase">& Training</span>
+    <div className="h-full w-full bg-white flex flex-col p-8 sm:p-12 animate-fade-in overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full py-10">
+        <div className="mb-10 text-center">
+          <div className="w-20 h-20 bg-teal-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-teal-900/5">
+            <img src={LOGO_URL} className="w-12 h-12 object-contain" alt="FAST Logo" />
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            {isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
+          </h1>
+          <p className="text-gray-400 text-sm mt-2 font-medium">FAST - Food All Standard & Training</p>
         </div>
-      </header>
 
-      <div className="mb-10">
-        <h3 className="text-3xl font-black text-gray-900 mb-2">{isLogin ? 'Đăng nhập' : 'Đăng ký'}</h3>
-        <p className="text-gray-400 font-bold text-sm leading-relaxed">
-          {isLogin ? 'Nhập thông tin để tiếp tục học tập.' : 'Trở thành chuyên gia an toàn thực phẩm ngay hôm nay.'}
-        </p>
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-shake">
+            <AlertCircle className="text-red-500 shrink-0" size={18} />
+            <p className="text-red-600 text-xs font-bold leading-tight">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleStartAuth} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email của bạn</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@vidu.com"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent focus:border-teal-500 focus:bg-white rounded-2xl outline-none transition-all text-sm font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-transparent focus:border-teal-500 focus:bg-white rounded-2xl outline-none transition-all text-sm font-medium"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-[#007c76] text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-teal-900/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : (isLogin ? 'Đăng nhập' : 'Tiếp tục')}
+          </button>
+        </form>
+
+        <div className="mt-8">
+          <div className="relative flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-gray-100"></div>
+            <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Hoặc</span>
+            <div className="flex-1 h-px bg-gray-100"></div>
+          </div>
+
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full bg-white border border-gray-100 text-gray-600 py-4 rounded-2xl font-bold text-sm shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
+            Tiếp tục với Google
+          </button>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 flex-1">
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
-          <input
-            type="email" required placeholder="name@email.com"
-            value={email} onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-[#007c76] outline-none transition-all font-bold text-gray-700 shadow-sm"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu</label>
-          <div className="relative group">
-            <input
-              type={showPassword ? "text" : "password"}
-              required placeholder="••••••••"
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-[#007c76] outline-none transition-all font-bold text-gray-700 shadow-sm pr-14"
-            />
-            <button 
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[#007c76] transition-colors focus:outline-none"
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-4 bg-[#007c76] text-white font-black rounded-2xl shadow-xl shadow-teal-100 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-        >
-          {isLoading ? <Loader2 className="animate-spin" size={24} /> : (isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ NGAY')}
-        </button>
-
-        {!isLogin && (
-          <p className="text-[10px] text-gray-400 font-medium text-center px-4">
-            Bằng việc nhấn Đăng ký, bạn đồng ý với <button type="button" onClick={() => setShowTerms(true)} className="text-[#007c76] font-black underline">Điều khoản & Dịch vụ</button> của chúng tôi.
-          </p>
-        )}
-      </form>
-      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+      <div className="mt-auto pt-8 border-t border-gray-50 text-center">
+        <p className="text-sm text-gray-400 font-medium">
+          {isLogin ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
+          <button
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError(null);
+            }}
+            className="ml-2 text-[#007c76] font-black hover:underline"
+          >
+            {isLogin ? 'Đăng ký ngay' : 'Đăng nhập'}
+          </button>
+        </p>
+      </div>
     </div>
   );
 };
